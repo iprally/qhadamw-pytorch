@@ -7,11 +7,10 @@ import torch
 from torch.optim.optimizer import Optimizer
 
 
-class QHAdam(Optimizer):
-    r"""Implements the QHAdam optimization algorithm `(Ma and Yarats, 2019)`_.
-
-    Note that the NAdam optimizer is accessible via a specific parameterization
-    of QHAdam. See :func:`from_nadam()` for details.
+class QHAdamW(Optimizer):
+    r"""
+    Combines the weight decay decoupling from AdamW (Decoupled Weight Decay Regularization. Loshchilov and Hutter, 2019)
+    with QHAdam (Quasi-hyperbolic momentum and Adam for deep learning. Ma and Yarats, 2019).
 
     Args:
         params (iterable):
@@ -33,14 +32,17 @@ class QHAdam(Optimizer):
             (default: 0.0)
 
     Example:
-        >>> optimizer = qhoptim.pyt.QHAdam(
+        >>> optimizer = QHAdamW(
         ...     model.parameters(),
         ...     lr=3e-4, nus=(0.8, 1.0), betas=(0.99, 0.999))
         >>> optimizer.zero_grad()
         >>> loss_fn(model(input), target).backward()
         >>> optimizer.step()
 
+        QHAdam paper:
     .. _`(Ma and Yarats, 2019)`: https://arxiv.org/abs/1810.06801
+        AdamW paper:
+    .. _`(Loshchilov and Hutter, 2019)`: https://arxiv.org/abs/1711.05101
     """
 
     def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), nus=(1.0, 1.0), weight_decay=0.0, eps=1e-8):
@@ -56,7 +58,7 @@ class QHAdam(Optimizer):
             raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
 
         defaults = {"lr": lr, "betas": betas, "nus": nus, "weight_decay": weight_decay, "eps": eps}
-        super(QHAdam, self).__init__(params, defaults)
+        super(QHAdamW, self).__init__(params, defaults)
 
     def step(self, closure=None):
         """Performs a single optimization step.
@@ -82,12 +84,13 @@ class QHAdam(Optimizer):
 
                 d_p = p.grad.data
                 if d_p.is_sparse:
-                    raise RuntimeError("QHAdam does not support sparse gradients")
+                    raise RuntimeError("QHAdamW does not support sparse gradients")
 
                 param_state = self.state[p]
 
-                if weight_decay != 0:
-                    d_p.add_(weight_decay, p.data)
+                # Original QHAdam implementation for weight decay:
+                # if weight_decay != 0:
+                #    d_p.add_(weight_decay, p.data)
 
                 d_p_sq = d_p.mul(d_p)
 
@@ -121,6 +124,10 @@ class QHAdam(Optimizer):
                 if eps != 0.0:
                     avg_grad_rms.add_(eps)
 
-                p.data.addcdiv_(-lr, avg_grad, avg_grad_rms)
+                # Original QHAdam implementation:
+                # p.data.addcdiv_(-lr, avg_grad, avg_grad_rms)
+
+                # Implementation following AdamW paper:
+                p.data.add_(-weight_decay, p.data).addcdiv_(-lr, avg_grad, avg_grad_rms)
 
         return loss
