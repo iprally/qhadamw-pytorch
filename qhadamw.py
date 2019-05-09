@@ -23,7 +23,7 @@ class QHAdamW(Optimizer):
             (default: (0.9, 0.999))
         nus (Tuple[float, float], optional): immediate discount factors used to
             estimate the gradient and its square
-            (default: (1.0, 1.0))
+            (default: (0.9, 1.0))
         eps (float, optional): term added to the denominator to improve
             numerical stability
             (default: 1e-8)
@@ -45,7 +45,7 @@ class QHAdamW(Optimizer):
     .. _`(Loshchilov and Hutter, 2019)`: https://arxiv.org/abs/1711.05101
     """
 
-    def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), nus=(1.0, 1.0), weight_decay=0.0, eps=1e-8):
+    def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), nus=(0.9, 1.0), weight_decay=0.0, eps=1e-8):
         if not 0.0 <= lr:
             raise ValueError("Invalid learning rate: {}".format(lr))
         if not 0.0 <= eps:
