@@ -7,3 +7,8 @@ The code is based on the PyTorch implementation of QHAdam found in the repositor
 Other implementations of AdamW in PyTorch:
 * https://github.com/pytorch/pytorch/pull/4429
 * https://github.com/egg-west/AdamW-pytorch
+
+## Requirements
+
+* Python >= 3.6
+* PyTorch >= 1.0
