@@ -28,7 +28,7 @@ class QHAdamW(Optimizer):
             numerical stability
             (default: 1e-8)
         weight_decay (float, optional): weight decay
-            (L2 regularlization coefficient, times two)
+            (L2 regularization coefficient, times two)
             (default: 0.0)
 
     Example:
