@@ -6,8 +6,6 @@
 import torch
 from torch.optim.optimizer import Optimizer
 
-from ..common import param_conv
-
 
 class QHAdam(Optimizer):
     r"""Implements the QHAdam optimization algorithm `(Ma and Yarats, 2019)`_.
@@ -126,41 +124,3 @@ class QHAdam(Optimizer):
                 p.data.addcdiv_(-lr, avg_grad, avg_grad_rms)
 
         return loss
-
-    @classmethod
-    def _params_to_dict(cls, params):
-        return {"lr": params.alpha, "nus": (params.nu1, params.nu2), "betas": (params.beta1, params.beta2)}
-
-    @classmethod
-    def from_nadam(cls, lr=1e-3, betas=(0.9, 0.999)):
-        r"""Calculates the QHAdam hyperparameters required to recover the NAdam
-        optimizer `(Dozat, 2016)`_.
-
-        This is *not* an identical recovery of the formulation in the paper, due
-        to subtle differences in the application of the bias correction in the
-        first moment estimator. However, in practice, this difference is almost
-        certainly irrelevant.
-
-        Args:
-            lr (float, optional):
-                learning rate (:math:`\alpha` from the paper)
-                (default: 1e-3)
-            betas (Tuple[float, float], optional):
-                coefficients used for computing running averages of the
-                gradient and its square
-                (default: (0.9, 0.999))
-
-        Returns:
-            Three-element ``dict`` containing ``lr``, ``betas``, and ``nus``
-            to use in QHAdam.
-
-        Example:
-            >>> optimizer = qhoptim.pyt.QHAdam(
-            ...     model.parameters(),
-            ...     weight_decay=1e-4,
-            ...     **qhoptim.pyt.QHAdam.from_nadam(
-            ...         lr=1e-3, betas=(0.9, 0.999)))
-
-        .. _`(Dozat, 2016)`: https://openreview.net/pdf?id=OM0jvwB8jIp57ZJjtNEZ
-        """
-        return cls._params_to_dict(param_conv.from_nadam(lr, betas[0], betas[1]))
