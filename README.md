@@ -21,3 +21,7 @@ Other implementations of AdamW in PyTorch:
 
 * Python >= 3.6
 * PyTorch >= 1.0
+
+## More information
+
+For a short description of the main ideas in AdamW, QHAdam and QHAdamW, see the IPRally blog post [Recent improvements to the Adam optimizer](https://www.iprally.com/news/recent-improvements-to-the-adam-optimizer).
